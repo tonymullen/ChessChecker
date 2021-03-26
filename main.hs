@@ -13,6 +13,12 @@ data Column    =   A | B | C | D
                     Enum, Bounded)
 type Position  = (Row, Column)
 
+data Dir       =  North | East 
+                | West  | South
+                | NE    | NW 
+                | SE    | SW 
+                deriving Show 
+
 data Color     = Black | White 
                 deriving (Show, Eq)
 data PieceType =  King   | Queen 
@@ -97,33 +103,27 @@ posAttacked pos opps gs =
 attacks :: Piece -> AttackArgs-> Bool
 attacks piece attArgs
       | pieceType piece == Rook 
-        = orthogAttack fPos tPos  atts defs Unlimited
+        = orthogAttack attArgs Unlimited
       | pieceType piece == Bishop 
-        = diagAttack fPos tPos  atts defs Unlimited
+        = diagAttack attArgs Unlimited
       | pieceType piece == Queen 
         = or [
-          orthogAttack fPos tPos  atts defs Unlimited,
-          diagAttack fPos tPos  atts defs Unlimited
+          orthogAttack attArgs Unlimited,
+          diagAttack attArgs Unlimited
           ]
       | pieceType piece == King
         = or [
-          orthogAttack fPos tPos  atts defs OneSquare,
-          diagAttack fPos tPos  atts defs OneSquare
+          orthogAttack attArgs OneSquare,
+          diagAttack attArgs OneSquare
           ]
       | otherwise               
         = False
-      where
-          fPos = fromPos attArgs
-          tPos = toPos attArgs
-          atts = attackers attArgs
-          defs = defenders attArgs
-          
 
-orthogAttack :: Position -> Position -> Map Position Piece -> Map Position Piece -> MvLimit -> Bool
-orthogAttack fromPos toPos attackers defenders Unlimited = True
+orthogAttack :: AttackArgs -> MvLimit -> Bool
+orthogAttack attArgs Unlimited = True
 
-diagAttack :: Position -> Position -> Map Position Piece -> Map Position Piece -> MvLimit -> Bool
-diagAttack fromPos toPos attackers defenders Unlimited = True
+diagAttack :: AttackArgs -> MvLimit -> Bool
+diagAttack attArgs Unlimited = True
 
 
 
