@@ -38,7 +38,13 @@ data Sides     = Sides {
       opponents  :: Map Position Piece
                         } 
                   deriving Show
-
+data AttackArgs = AttackArgs {
+       fromPos :: Position,
+       toPos   :: Position,
+       attackers :: Map Position Piece,
+       defenders :: Map Position Piece
+                             }
+                  deriving Show
 
 determineStatus :: GameState -> Status
 determineStatus gs | kingAttacked gs 
@@ -76,35 +82,48 @@ kingAttacked gs = let kp = kingPos gs
 posAttacked :: Position -> Map Position Piece -> GameState -> Bool
 posAttacked pos opps gs = 
    or [
-     attacks posPiece pos opps (toPlaySide (sides gs))|
-     posPiece <- 
-       Map.toList opps
-   ]
+       attacks (snd posPiece) 
+         AttackArgs {
+          fromPos=(fst posPiece),
+          toPos=pos,
+          attackers=opps,
+          defenders=toPlaySide (sides gs)
+         } 
+        |
+        posPiece <- 
+        Map.toList opps
+      ]
 
-attacks :: (Position, Piece) -> Position -> Map Position Piece -> Map Position Piece -> Bool
-attacks (fromPos, piece) toPos attackers defenders    
-     | pieceType piece == Rook 
-        = orthogAttack fromPos toPos  attackers defenders Unlimited
-     | pieceType piece == Bishop 
-        = diagAttack fromPos toPos  attackers defenders Unlimited
-     | pieceType piece == Queen 
+attacks :: Piece -> AttackArgs-> Bool
+attacks piece attArgs
+      | pieceType piece == Rook 
+        = orthogAttack fPos tPos  atts defs Unlimited
+      | pieceType piece == Bishop 
+        = diagAttack fPos tPos  atts defs Unlimited
+      | pieceType piece == Queen 
         = or [
-          orthogAttack fromPos toPos  attackers defenders Unlimited,
-          diagAttack fromPos toPos  attackers defenders Unlimited
+          orthogAttack fPos tPos  atts defs Unlimited,
+          diagAttack fPos tPos  atts defs Unlimited
           ]
       | pieceType piece == King
         = or [
-          orthogAttack fromPos toPos  attackers defenders OneSquare,
-          diagAttack fromPos toPos  attackers defenders OneSquare
+          orthogAttack fPos tPos  atts defs OneSquare,
+          diagAttack fPos tPos  atts defs OneSquare
           ]
-     | otherwise               
+      | otherwise               
         = False
+      where
+          fPos = fromPos attArgs
+          tPos = toPos attArgs
+          atts = attackers attArgs
+          defs = defenders attArgs
+          
 
 orthogAttack :: Position -> Position -> Map Position Piece -> Map Position Piece -> MvLimit -> Bool
-orthogAttack fromPos toPos attackers dedenders Unlimited = True
+orthogAttack fromPos toPos attackers defenders Unlimited = True
 
 diagAttack :: Position -> Position -> Map Position Piece -> Map Position Piece -> MvLimit -> Bool
-diagAttack fromPos toPos attackers dedenders Unlimited = True
+diagAttack fromPos toPos attackers defenders Unlimited = True
 
 
 
