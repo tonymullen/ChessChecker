@@ -1,6 +1,6 @@
 import Data.Map as Map
 
-data Row       =   One  | Two  | Three 
+data Row       =  One   | Two  | Three 
                 | Four  | Five | Six
                 | Seven | Eight
                deriving 
@@ -125,6 +125,17 @@ orthogAttack attArgs Unlimited = True
 diagAttack :: AttackArgs -> MvLimit -> Bool
 diagAttack attArgs Unlimited = True
 
+attacksDir :: Dir -> AttackArgs -> Bool
+attacksDir dir attArgs
+             | nextSquare dir 
+                (fromPos attArgs) == (toPos attArgs) 
+               = True
+             | otherwise     
+               = False
+
+nextSquare :: Dir -> Position -> Position
+nextSquare North (r1, c1) = (succ r1, c1)
+nextSquare South (r1, c1) = (pred r1, c1)
 
 
 noEscape     _ = False
