@@ -52,6 +52,11 @@ data AttackArgs = AttackArgs {
                              }
                   deriving Show
 
+data Occupancy = Empty 
+               | Opponent 
+               | Friend
+                  deriving Show
+    
 determineStatus :: GameState -> Status
 determineStatus gs | kingAttacked gs 
                      && 
@@ -130,13 +135,24 @@ attacksDir dir attArgs
              | nextSquare dir 
                 (fromPos attArgs) == (toPos attArgs) 
                = True
-             | otherwise     
-               = False
+             | otherwise 
+               = let
+                 nextPos = 
+                   nextSquare dir        (fromPos attArgs)
+                 in False
+
+orthDirs :: [Dir]
+orthDirs = [North, South, East, West]
 
 nextSquare :: Dir -> Position -> Position
 nextSquare North (r1, c1) = (succ r1, c1)
 nextSquare South (r1, c1) = (pred r1, c1)
 
+occupied :: Position -> AttackArgs -> Occupancy
+occupied pos attArgs
+    | Map.lookup pos (attackers attArgs) /= Nothing = Friend 
+    | Map.lookup pos (defenders attArgs) /= Nothing = Opponent 
+    | otherwise = Empty
 
 noEscape     _ = False
 
