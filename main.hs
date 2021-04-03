@@ -53,9 +53,9 @@ data AttackArgs = AttackArgs {
                   deriving Show
 
 data Occupancy = Empty 
-               | Opponent 
-               | Friend
-                  deriving Show
+               | Defender
+               | Attacker
+                  deriving (Show, Eq)
     
 determineStatus :: GameState -> Status
 determineStatus gs | kingAttacked gs 
@@ -125,39 +125,46 @@ attacks piece attArgs
         = False
 
 orthogAttack :: AttackArgs -> MvLimit -> Bool
-orthogAttack attArgs Unlimited = True
+orthogAttack attArgs Unlimited = 
+  or [
+    attacksDir dir attArgs |
+    dir <- orthDirs
+  ]
 
 diagAttack :: AttackArgs -> MvLimit -> Bool
 diagAttack attArgs Unlimited = True
 
 attacksDir :: Dir -> AttackArgs -> Bool
-attacksDir dir attArgs
-             | nextSquare dir 
-                (fromPos attArgs) == (toPos attArgs) 
-               = True
-             | otherwise 
-               = let
-                 nextPos = 
-                   nextSquare dir        (fromPos attArgs)
-                 in False
+attacksDir dir attArgs =
+    case nextSquare dir (fromPos attArgs) of
+          Just nextPos -> True
+          Nothing      -> False
+
 
 orthDirs :: [Dir]
 orthDirs = [North, South, East, West]
 
-nextSquare :: Dir -> Position -> Position
-nextSquare North (r1, c1) = (succ r1, c1)
-nextSquare South (r1, c1) = (pred r1, c1)
+nextSquare :: Dir -> Position -> Maybe Position
+nextSquare North (r1, c1) 
+    | r1 == maxBound = Nothing
+    | otherwise      = Just (succ r1, c1)
+nextSquare South (r1, c1) 
+    | r1 == minBound = Nothing 
+    | otherwise      = Just (pred r1, c1)
+nextSquare East (r1, c1) 
+    | c1 == maxBound = Nothing
+    | otherwise      =  Just (r1, succ c1)
+nextSquare West (r1, c1) 
+    | c1 == minBound = Nothing
+    | otherwise      = Just (r1, pred c1)
 
 occupied :: Position -> AttackArgs -> Occupancy
 occupied pos attArgs
-    | Map.lookup pos (attackers attArgs) /= Nothing = Friend 
-    | Map.lookup pos (defenders attArgs) /= Nothing = Opponent 
+    | Map.lookup pos (attackers attArgs) /= Nothing = Attacker
+    | Map.lookup pos (defenders attArgs) /= Nothing = Defender
     | otherwise = Empty
 
 noEscape     _ = False
-
-getColor :: Piece -> Color
-getColor (Piece _ c) = c
 
 --ghc 8.6.3
 
@@ -176,7 +183,7 @@ report status = putStrLn $ show status
 
 board1 :: Board
 board1 = Map.fromList [
-    ((One,B), Piece King Black),
+    ((Two,B), Piece King Black),
     ((Three,C), Piece Rook White)
   ]
 
@@ -185,5 +192,18 @@ game1 = GameState {
   board=board1,
   toPlay=Black
 }
+
+board2 :: Board
+board2 = Map.fromList [
+    ((Two,B), Piece King Black),
+    ((Two,F), Piece Rook White)
+  ]
+  
+game2 :: GameState
+game2 = GameState {
+  board=board1,
+  toPlay=Black
+}
+
 
 --status InPlay             
