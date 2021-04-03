@@ -137,7 +137,9 @@ diagAttack attArgs Unlimited = True
 attacksDir :: Dir -> AttackArgs -> Bool
 attacksDir dir attArgs =
     case nextSquare dir (fromPos attArgs) of
-          Just nextPos -> True
+          Just nextPos 
+            | True      -> True
+            | otherwise -> False
           Nothing      -> False
 
 
