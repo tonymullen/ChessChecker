@@ -105,7 +105,7 @@ posAttacked pos gs =
         Map.toList $ opponents (sides gs)
       ]
 
-attacks :: Piece -> AttackArgs-> Bool
+attacks :: Piece -> AttackArgs -> Bool
 attacks piece attArgs
       | pieceType piece == Rook 
         = orthogAttack attArgs Unlimited
@@ -129,7 +129,7 @@ orthogAttack attArgs Unlimited =
   or [
     attacksDir dir attArgs |
     dir <- orthDirs
-  ]
+    ]
 
 diagAttack :: AttackArgs -> MvLimit -> Bool
 diagAttack attArgs Unlimited = True
@@ -145,6 +145,8 @@ attacksDir dir attArgs =
 
 orthDirs :: [Dir]
 orthDirs = [North, South, East, West]
+diagDirs :: [Dir]
+diagDirs = [NE, NW, SE, SW]
 
 nextSquare :: Dir -> Position -> Maybe Position
 nextSquare North (r1, c1) 
@@ -170,12 +172,24 @@ noEscape :: GameState -> Bool
 noEscape gs = 
   and 
     [
-    do 
-      True
-    | _ <- [1..5]
+      do 
+        True
+      | _ <- [1..5]
     ]
 
---ghc 8.6.3
+possiblePcMoves :: (Position, Piece) -> Board -> [Board]
+possiblePcMoves _ _ = []
+
+possibleMoves :: GameState  -> [Board] 
+possibleMoves gs =
+   [
+     board
+     |
+      (pos, piece) <-
+         Map.toList $ toPlaySide (sides gs),
+         board <- possiblePcMoves (pos,  piece) (board gs)
+   ]
+
 
 main = do
          let gameState = game2
