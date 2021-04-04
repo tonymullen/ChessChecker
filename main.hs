@@ -178,8 +178,24 @@ noEscape gs =
     ]
 
 possiblePcMoves :: (Position, Piece) -> Board -> [Board]
-possiblePcMoves _ _ = []
+possiblePcMoves (pos, piece) board =
+      case (pieceType piece) of
+        Rook    -> orthogMoves pos board Unlimited
+        Bishop  -> []
+        Queen   -> []
+        King    -> [] 
 
+orthogMoves :: Position -> Board -> MvLimit ->  [Board]
+orthogMoves _ _ _ = []
+
+
+move :: Position -> Position -> Board -> Board
+move pos1 pos2 board  = 
+  case (Map.lookup pos1 board) of
+    Just v   -> delete pos1 $ insert pos2 v board
+    Nothing  -> delete pos1 board
+  
+  
 possibleMoves :: GameState  -> [Board] 
 possibleMoves gs =
    [
