@@ -87,22 +87,21 @@ kingPos gs = fst $
 
 kingAttacked :: GameState -> Bool
 kingAttacked gs = let kp = kingPos gs
-                      opps = opponents (sides gs)
-                  in posAttacked kp opps gs
+                  in posAttacked kp gs
 
-posAttacked :: Position -> Map Position Piece -> GameState -> Bool
-posAttacked pos opps gs = 
+posAttacked :: Position -> GameState -> Bool
+posAttacked pos gs = 
    or [
        attacks (snd posPiece) 
          AttackArgs {
           fromPos=(fst posPiece),
           toPos=pos,
-          attackers=opps,
+          attackers=opponents (sides gs),
           defenders=toPlaySide (sides gs)
          } 
         |
         posPiece <- 
-        Map.toList opps
+        Map.toList $ opponents (sides gs)
       ]
 
 attacks :: Piece -> AttackArgs-> Bool
@@ -138,8 +137,8 @@ attacksDir :: Dir -> AttackArgs -> Bool
 attacksDir dir attArgs =
     case nextSquare dir (fromPos attArgs) of
           Just nextPos 
-            | True      -> True
-            | otherwise -> False
+            | (toPos attArgs) == nextPos   -> True
+            | otherwise -> attacksDir dir attArgs{fromPos=nextPos}
           Nothing      -> False
 
 
@@ -155,7 +154,7 @@ nextSquare South (r1, c1)
     | otherwise      = Just (pred r1, c1)
 nextSquare East (r1, c1) 
     | c1 == maxBound = Nothing
-    | otherwise      =  Just (r1, succ c1)
+    | otherwise      = Just (r1, succ c1)
 nextSquare West (r1, c1) 
     | c1 == minBound = Nothing
     | otherwise      = Just (r1, pred c1)
@@ -171,7 +170,7 @@ noEscape     _ = False
 --ghc 8.6.3
 
 main = do
-         let gameState = game1
+         let gameState = game2
          putStrLn $ show (kingPos gameState)
          putStrLn $ show (sides gameState)
          report $ determineStatus gameState
@@ -203,7 +202,7 @@ board2 = Map.fromList [
   
 game2 :: GameState
 game2 = GameState {
-  board=board1,
+  board=board2,
   toPlay=Black
 }
 
