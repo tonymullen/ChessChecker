@@ -60,7 +60,8 @@ data Occupancy = Empty
 determineStatus :: GameState -> Status
 determineStatus gs | kingAttacked gs 
                      && 
-                     noEscape GameState   = Checkmate
+                     noEscape gs    
+                     = Checkmate
                    | kingAttacked gs 
                      = Check
                    | otherwise     
@@ -165,7 +166,14 @@ occupied pos attArgs
     | Map.lookup pos (defenders attArgs) /= Nothing = Defender
     | otherwise = Empty
 
-noEscape     _ = False
+noEscape :: GameState -> Bool
+noEscape gs = 
+  and 
+    [
+    do 
+      True
+    | _ <- [1..5]
+    ]
 
 --ghc 8.6.3
 
