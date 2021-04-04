@@ -192,7 +192,11 @@ movesDir :: Dir -> Position -> Board -> MvLimit -> [Position]
 movesDir North pos board mvlmt =
    case mvlmt of
      OneSquare -> []
-     Unlimited -> []
+     Unlimited ->
+      case (nextSquare North pos) of
+        Just p2 -> [p2]
+        Nothing -> []
+
 
 move :: Position -> Position -> Board -> Board
 move pos1 pos2 board  = 
