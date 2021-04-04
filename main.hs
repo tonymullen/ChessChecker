@@ -188,6 +188,11 @@ possiblePcMoves (pos, piece) board =
 orthogMoves :: Position -> Board -> MvLimit ->  [Board]
 orthogMoves _ _ _ = []
 
+movesDir :: Dir -> Position -> Board -> MvLimit -> [Position]
+movesDir North pos board mvlmt =
+   case mvlmt of
+     OneSquare -> []
+     Unlimited -> []
 
 move :: Position -> Position -> Board -> Board
 move pos1 pos2 board  = 
