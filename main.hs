@@ -194,7 +194,8 @@ movesDir North pos board mvlmt =
      OneSquare -> []
      Unlimited ->
       case (nextSquare North pos) of
-        Just p2 -> [p2]
+        Just p2 ->  [(fst p2, column)
+            | column <- columnsFrom (snd p2)]
         Nothing -> []
 
 
@@ -215,18 +216,20 @@ possibleMoves gs =
          board <- possiblePcMoves (pos,  piece) (board gs)
    ]
 
+rowsFrom :: Row -> [Row]
+rowsFrom row = [row ..]
+columnsFrom:: Column -> [Column]
+columnsFrom column = [column ..]
+
+report status = putStrLn $ show status
 
 main = do
          let gameState = game2
          putStrLn $ show (kingPos gameState)
          putStrLn $ show (sides gameState)
          report $ determineStatus gameState
-
-
-report status = putStrLn $ show status
-
-                   
-                             
+    
+         
 --fromList :: Ord k => [<(k, a)] -> Map k aSource
 
 board1 :: Board
