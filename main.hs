@@ -194,7 +194,10 @@ movesDir North pos board mvlmt =
      OneSquare -> []
      Unlimited ->
       case (nextSquare North pos) of
-        Just p2 ->  [(fst p2, column)
+        Just p2 ->
+            takeWhile 
+              (\pos -> notMember pos board )
+            [(fst p2, column)
             | column <- columnsFrom (snd p2)]
         Nothing -> []
 
