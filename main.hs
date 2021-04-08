@@ -1,4 +1,5 @@
 import Data.Map as Map
+import Data.List as List
 
 data Row       =  One   | Two  | Three 
                 | Four  | Five | Six
@@ -188,25 +189,30 @@ possiblePcMoves (pos, piece) board =
 orthogMoves :: Position -> Board -> MvLimit ->  [Board]
 orthogMoves _ _ _ = []
 
-movesDir :: Dir -> Position -> Board -> MvLimit -> [Position]
-movesDir North pos board mvlmt =
+movesDir :: Dir -> Position -> GameState -> MvLimit -> [Position]
+movesDir North pos gs mvlmt =
    case mvlmt of
      OneSquare -> []
      Unlimited ->
       case (nextSquare North pos) of
         Just p2 ->
-            takeWhile 
-              (\pos -> notMember pos board )
-            [(fst p2, column)
-            | column <- columnsFrom (snd p2)]
+                includeAttack
+                   (fst mvs)
+                   (snd mvs)
+                   gs
+                where 
+                  mvs = List.span
+                       (\pos -> notMember pos (board gs))
+                       [(fst p2, column)
+                        | column <- columnsFrom (snd p2)]
         Nothing -> []
 
 
 move :: Position -> Position -> Board -> Board
 move pos1 pos2 board  = 
   case (Map.lookup pos1 board) of
-    Just v   -> delete pos1 $ insert pos2 v board
-    Nothing  -> delete pos1 board
+    Just v   -> Map.delete pos1 $ Map.insert pos2 v board
+    Nothing  -> Map.delete pos1 board
   
   
 possibleMoves :: GameState  -> [Board] 
