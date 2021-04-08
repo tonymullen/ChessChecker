@@ -219,6 +219,13 @@ possibleMoves gs =
          board <- possiblePcMoves (pos,  piece) (board gs)
    ]
 
+includeAttack :: [Position] -> [Position] -> GameState -> [Position]
+includeAttack mvs (pos:l2) gs
+       | member pos $ 
+           opponents (sides gs)
+           = mvs ++ [pos]
+       | otherwise = mvs
+
 rowsFrom :: Row -> [Row]
 rowsFrom row = [row ..]
 columnsFrom:: Column -> [Column]
