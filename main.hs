@@ -178,17 +178,20 @@ noEscape gs =
       | _ <- [1..5]
     ]
 
-possiblePcMoves :: (Position, Piece) -> Board -> [Board]
-possiblePcMoves (pos, piece) board =
+possiblePcMoves :: (Position, Piece) -> GameState -> [Board]
+possiblePcMoves (pos, piece) gs =
       case (pieceType piece) of
-        Rook    -> orthogMoves pos board Unlimited
+        Rook    -> orthogMoves pos gs Unlimited
         Bishop  -> []
         Queen   -> []
         King    -> [] 
 
-orthogMoves :: Position -> Board -> MvLimit ->  [Board]
-orthogMoves _ _ _ = []
-
+orthogMoves :: Position -> GameState -> MvLimit ->  [Board]
+orthogMoves pos gs mvlmt =
+  [ move pos pos2 (board gs) |
+    dir  <- orthDirs,
+    pos2 <- movesDir dir pos gs mvlmt]
+    
 movesDir :: Dir -> Position -> GameState -> MvLimit -> [Position]
 movesDir North pos gs mvlmt =
    case mvlmt of
@@ -222,7 +225,7 @@ possibleMoves gs =
      |
       (pos, piece) <-
          Map.toList $ toPlaySide (sides gs),
-         board <- possiblePcMoves (pos,  piece) (board gs)
+         board <- possiblePcMoves (pos,  piece) gs
    ]
 
 includeAttack :: [Position] -> [Position] -> GameState -> [Position]
